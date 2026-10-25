@@ -7,4 +7,5 @@ export const ROUTES = {
   PORTFOLIO_DETAIL: '/portofolio/:id',
   BLOG: '/blog',
   BLOG_DETAIL: '/blog/:slug',
+  CONTACT: '/kontak',
 }
