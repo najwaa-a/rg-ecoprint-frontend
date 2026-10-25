@@ -6,4 +6,5 @@ export const NAV_ITEMS = [
   { label: "Layanan", path: ROUTES.SERVICES },
   { label: "Portofolio", path: ROUTES.PORTFOLIO },
   { label: "Blog", path: ROUTES.BLOG },
+  { label: "Kontak", path: ROUTES.CONTACT },
 ];
