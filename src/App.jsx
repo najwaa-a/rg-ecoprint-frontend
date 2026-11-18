@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Navbar from '@/components/layouts/Navbar'
 import Footer from '@/components/layouts/Footer'
 import ProductIntro from '@/components/products/ProductIntro'
@@ -6,29 +6,79 @@ import ProductStats from '@/components/products/ProductStats'
 import ProductForm from '@/components/products/ProductForm'
 import ProductList from '@/components/products/ProductList'
 
-const initialProducts = [
-  { id: 1, name: 'Sepatu Ecoprint', category: 'Fashion', price: 275000, stock: 8, description: 'Sepatu dengan aksen motif daun alami.', image: '/assets/sepatu-hero.png' },
-  { id: 2, name: 'Kain Ecoprint Liora', category: 'Kain', price: 185000, stock: 12, description: 'Kain bermotif alami dengan karakter unik.', image: '/assets/kain-rg.jpg' },
-  { id: 3, name: 'Tas Motif Daun', category: 'Aksesori', price: 145000, stock: 6, description: 'Tas kain dengan sentuhan motif botani.', image: '/assets/tas-rg.jpg' },
-  { id: 4, name: 'Kipas Ecoprint', category: 'Aksesori', price: 65000, stock: 15, description: 'Kipas dekoratif dengan pola tumbuhan.', image: '/assets/kipas-rg.jpg' },
-]
-
 export default function App() {
-  const [products, setProducts] = useState(initialProducts)
+  const [products, setProducts] = useState([])
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('Semua')
   const [notice, setNotice] = useState('')
+
+  // 1. Ambil data produk dari Backend NestJS saat aplikasi pertama kali dibuka (GET)
+useEffect(() => {
+    fetch('http://localhost:3000/products')
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          // Berikan gambar cadangan jika dari backend tidak ada gambar
+          const productsWithImages = data.map((item, index) => ({
+            ...item,
+            image: item.image || (index === 0 ? '/assets/sepatu-hero.png' : index === 1 ? '/assets/kain-rg.jpg' : '/assets/tas-rg.jpg')
+          }))
+          setProducts(productsWithImages)
+        }
+      })
+      .catch((err) => console.error('Gagal memuat data:', err))
+  }, [])
+
   const filteredProducts = useMemo(() => products.filter((product) =>
     product.name.toLowerCase().includes(search.toLowerCase()) && (category === 'Semua' || product.category === category)
   ), [products, search, category])
 
-  const addProduct = (form) => {
-    const newProduct = { ...form, id: Date.now(), price: Number(form.price), stock: Number(form.stock), image: '/assets/liora-cover.png' }
-    setProducts((current) => [newProduct, ...current])
-    setNotice(`${form.name} berhasil ditambahkan ke katalog.`)
-    window.setTimeout(() => setNotice(''), 3500)
+  // 2. Tambah produk baru ke Backend NestJS (POST)
+  const addProduct = async (form) => {
+    try {
+      const response = await fetch('http://localhost:3000/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          description: form.description,
+          price: Number(form.price),
+          category: form.category,
+          stock: Number(form.stock),
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Gagal menambahkan produk')
+      }
+
+      const newProduct = await response.json()
+      setProducts((current) => [newProduct, ...current])
+      setNotice(`${form.name} berhasil ditambahkan ke katalog backend.`)
+      window.setTimeout(() => setNotice(''), 3500)
+    } catch (error) {
+      console.error(error)
+      setNotice('Gagal menambahkan produk (cek validasi DTO).')
+      window.setTimeout(() => setNotice(''), 3500)
+    }
   }
-  const deleteProduct = (id) => setProducts((current) => current.filter((product) => product.id !== id))
+
+  // 3. Hapus produk dari Backend NestJS (DELETE)
+  const deleteProduct = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/products/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Gagal menghapus produk')
+      }
+
+      setProducts((current) => current.filter((product) => product.id !== id))
+    } catch (error) {
+      console.error('Gagal menghapus produk:', error)
+    }
+  }
 
   return <div className="app-shell"><Navbar />
     <main>
