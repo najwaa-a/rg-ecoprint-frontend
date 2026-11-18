@@ -1,0 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Work+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+@theme { --color-primary-50: #f1ead9; --color-primary-100: #eae1cb; --color-primary-500: #b4522f; --color-primary-600: #9d4528; --color-primary-700: #7f3824; --font-sans: "Work Sans", sans-serif; }
+:root{font-family:'Work Sans',sans-serif;color:#2a2420;background:#f1ead9;font-synthesis:none;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}body{margin:0;min-width:320px}button,input,select,textarea{font:inherit}button,a{-webkit-tap-highlight-color:transparent}a{color:inherit}
